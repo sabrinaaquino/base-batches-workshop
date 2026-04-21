@@ -36,7 +36,7 @@ def cells() -> list[Cell]:
             "**Cost:** $0.01 per call for web search, scrape, and text parser. Crypto RPC is billed "
             "in credits at roughly $0.0000125 per standard EVM call. Networks list is free."),
         ("markdown", "## Setup"),
-        install_cell("pandas requests"),
+        install_cell("pandas requests reportlab"),
         setup_cell(),
         ("code",
             '''import requests, json, pandas as pd
@@ -69,7 +69,9 @@ print("Helpers ready.")'''),
 })
 r.raise_for_status()
 results = r.json()["results"]
-pd.DataFrame(results)[["title", "date", "url"]]'''),
+df = pd.DataFrame(results)
+df["snippet"] = df["content"].fillna("").str.replace(r"\\s+", " ", regex=True).str.slice(0, 140) + "..."
+df[["title", "snippet", "url"]]'''),
         ("markdown",
             "## 2. Web Scrape\n\n"
             "Hand it any URL and get back clean markdown. Combine with chat for a one-shot "
@@ -162,12 +164,15 @@ net_df.sort_values(["family", "slug"]).reset_index(drop=True)'''),
             "call on most EVM chains). That is ~80,000 calls per dollar."),
         ("code",
             '''def rpc(network: str, method: str, params=None, request_id: int = 1):
-    """Single JSON-RPC call. Returns (result_or_error, response_headers)."""
+    """Single JSON-RPC call. Returns (result_or_error, response_headers).
+
+    We return the raw `requests` headers (CaseInsensitiveDict) so the cost
+    headers can be read with any casing the server happens to use.
+    """
     body = {"jsonrpc": "2.0", "method": method, "params": params or [], "id": request_id}
     r = post(f"/crypto/rpc/{network}", json_body=body)
     r.raise_for_status()
-    payload = r.json()
-    return payload, dict(r.headers)
+    return r.json(), r.headers
 
 def rpc_batch(network: str, calls: list[dict]):
     """Batch JSON-RPC. `calls` is a list of {method, params}. Returns (list_of_responses, headers)."""
@@ -177,7 +182,7 @@ def rpc_batch(network: str, calls: list[dict]):
     ]
     r = post(f"/crypto/rpc/{network}", json_body=body)
     r.raise_for_status()
-    return r.json(), dict(r.headers)
+    return r.json(), r.headers
 
 # Sanity: chain ID and latest block on Base mainnet
 chain_id, hdrs = rpc("base-mainnet", "eth_chainId")
@@ -236,8 +241,8 @@ for slug, native in CHAINS:
         "chain":     slug,
         "balance":   wei / 1e18,
         "symbol":    native,
-        "credits":   int(hdrs.get("X-Venice-RPC-Credits", 0)),
-        "cost_usd":  float(hdrs.get("X-Venice-RPC-Cost-USD", 0)),
+        "credits":   int(hdrs.get("X-Venice-RPC-Credits") or 0),
+        "cost_usd":  float(hdrs.get("X-Venice-RPC-Cost-USD") or 0),
     })
 
 multichain = pd.DataFrame(rows)
