@@ -43,7 +43,12 @@ H   = {"Authorization": f"Bearer {api_key}", "Content-Type": "application/json"}
 
 def jpost(path: str, body: dict, timeout: int = 60):
     r = requests.post(f"{API}{path}", headers=H, json=body, timeout=timeout)
-    r.raise_for_status()
+    if not r.ok:
+        try:
+            print(f"!! {r.status_code} from {path}: {r.json()}")
+        except Exception:
+            print(f"!! {r.status_code} from {path}: {r.text[:300]}")
+        r.raise_for_status()
     return r
 
 print("Helpers ready.")'''),
@@ -140,10 +145,13 @@ def complete_video(model: str, queue_id: str) -> dict:
     """POST /video/complete to delete the stored media on Venice's side."""
     return jpost("/video/complete", {"model": model, "queue_id": queue_id}).json()
 
+JOBS = []  # remember (model, queue_id) so we can /video/complete later
+
 def generate_video(body: dict, out_name: str) -> Path:
     """One-call wrapper: queue + retrieve + write to disk."""
     info = queue_video(body)
     print(f"Queued {info['model']} as {info['queue_id']}")
+    JOBS.append((info["model"], info["queue_id"]))
     data = poll_video(info["model"], info["queue_id"])
     path = OUT / out_name
     path.write_bytes(data)
@@ -193,12 +201,12 @@ display(Video(str(path), embed=True))'''),
             "accepts an array of `reference_image_urls`. Refer to them in the prompt as `@Image1`, "
             "`@Image2`, etc. The endpoint is still `/video/queue`. Only the body changes."),
         ("code",
-            '''MODEL_R2V = "wan-2-7-reference-to-video"
+            '''MODEL_R2V = "seedance-2-0-fast-reference-to-video"
 
-# Two references: a character portrait and a scene background. Swap with your own.
+# Two references: a still object and a scene background. Swap with your own.
 references = [
-    "https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?w=720&q=80",  # subject
-    "https://images.unsplash.com/photo-1500530855697-b586d89ba3ee?w=720&q=80",  # background
+    "https://images.unsplash.com/photo-1518791841217-8f162f1e1131?w=720&q=80",  # cat (subject)
+    "https://images.unsplash.com/photo-1500382017468-9049fed747ef?w=720&q=80",  # field (background)
 ]
 
 # Quote first so we know the bill before we commit
@@ -210,16 +218,22 @@ quote = jpost("/video/quote", {
 }).json()
 print(f"Reference-to-video quote: ${quote['quote']:.4f}")
 
-path = generate_video({
-    "model":                MODEL_R2V,
-    "prompt":               "@Image1 walks through @Image2, camera tracking from behind, golden hour light",
-    "duration":             "5s",
-    "resolution":           "720p",
-    "aspect_ratio":         "16:9",
-    "reference_image_urls": references,
-}, out_name="r2v.mp4")
-
-display(Video(str(path), embed=True))'''),
+# Reference-to-video models accept an array of images. Param shape varies by family;
+# wrap in try/except so the rest of the notebook still completes if your account
+# lacks access to this specific model.
+try:
+    path = generate_video({
+        "model":                MODEL_R2V,
+        "prompt":               "the cat walks slowly through the field, camera tracking from behind, golden hour light",
+        "duration":             "5s",
+        "resolution":           "720p",
+        "aspect_ratio":         "16:9",
+        "reference_image_urls": references,
+    }, out_name="r2v.mp4")
+    display(Video(str(path), embed=True))
+except Exception as e:
+    print(f"Skipped reference-to-video: {e}")
+    print("(Some accounts gate the reference models. Try wan-2-7-reference-to-video or grok-imagine-reference-to-video.)")'''),
         ("markdown",
             "## 6. Cleanup: `/video/complete`\n\n"
             "Generated media stays on Venice servers until you delete it. You have two options:\n\n"
@@ -229,20 +243,13 @@ display(Video(str(path), embed=True))'''),
             "More resilient, especially in production pipelines.\n\n"
             "Below is the explicit form for the three jobs we just ran."),
         ("code",
-            '''# We didn't capture the queue_ids in the helper, so we'll re-queue a tiny job
-# just to demonstrate the complete endpoint cleanly.
-info = queue_video({
-    "model":      MODEL_T2V,
-    "prompt":     "abstract watercolor textures shifting slowly",
-    "duration":   "5s",
-    "resolution": "720p",
-})
-print("Queued:", info["queue_id"])
-
-# Wait for it then explicitly delete
-poll_video(info["model"], info["queue_id"])
-result = complete_video(info["model"], info["queue_id"])
-print("Cleanup:", result)'''),
+            '''# Use the jobs we already ran instead of paying for a fresh one
+for model, queue_id in JOBS:
+    try:
+        result = complete_video(model, queue_id)
+        print(f"Cleaned {queue_id[:8]}... ({model}): {result}")
+    except Exception as e:
+        print(f"Already completed {queue_id[:8]}...: {e}")'''),
         ("markdown",
             "## Errors worth handling up front\n\n"
             "| Status | Meaning | What to do |\n"

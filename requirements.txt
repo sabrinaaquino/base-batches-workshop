@@ -8,15 +8,23 @@ ipykernel>=6.0.0
 # Embeddings + RAG demos
 numpy>=1.26.0
 scikit-learn>=1.4.0
+pandas>=2.2.0
+matplotlib>=3.8.0
 
 # Audio playback in notebooks (Colab has these by default; pinned for local)
 pydub>=0.25.1
+audioop-lts>=0.2.1; python_version >= "3.13"
 
-# x402 + E2EE
+# E2EE crypto
 web3>=6.20.0
 eth-account>=0.11.0
 coincurve>=20.0.0
 cryptography>=42.0.0
+ecdsa>=0.19.0
+siwe>=4.2.0
+
+# Structured outputs
+pydantic>=2.7.0
 
 # Pretty output
 rich>=13.7.0

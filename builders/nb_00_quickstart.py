@@ -66,7 +66,7 @@ print()'''),
             '''import pandas as pd
 
 PROMPT = "Explain why a Trusted Execution Environment is different from a regular cloud VM, in 3 bullets."
-MODELS = ["llama-3.3-70b", "venice-uncensored", "qwen3-235b"]
+MODELS = ["llama-3.3-70b", "venice-uncensored", "qwen3-235b-a22b-instruct-2507"]
 
 rows = []
 for model in MODELS:

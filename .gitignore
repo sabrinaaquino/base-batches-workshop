@@ -21,3 +21,11 @@ assets_generated/
 *.png
 !assets/static/*.png
 .commit-msg
+executed/
+.venv/
+_run_*.log
+_run_all.py
+_probe_*.py
+_test_*.py
+_inspect.py
+notebooks/sample.txt

@@ -43,28 +43,28 @@ VOICES = pd.DataFrame([
     {"voice": "af_bella",   "gender": "F", "accent": "American", "vibe": "warm, friendly"},
     {"voice": "af_nicole",  "gender": "F", "accent": "American", "vibe": "calm, confident"},
     {"voice": "am_adam",    "gender": "M", "accent": "American", "vibe": "deep, narrator"},
-    {"voice": "am_michael", "gender": "M", "accent": "American", "vibe": "clear, podcast host"},
+    {"voice": "am_echo",    "gender": "M", "accent": "American", "vibe": "clear, podcast host"},
     {"voice": "bf_emma",    "gender": "F", "accent": "British",  "vibe": "crisp, broadcast"},
-    {"voice": "bm_george",  "gender": "M", "accent": "British",  "vibe": "deep, BBC documentary"},
+    {"voice": "bm_daniel",  "gender": "M", "accent": "British",  "vibe": "deep, BBC documentary"},
 ])
 VOICES'''),
         ("markdown",
             "## 1. One-line TTS\n\n"
             "Speech in three lines: pick a voice, send text, save the file. Colab will play it inline."),
         ("code",
-            '''def speak(text: str, voice: str = "af_bella", out_name: str = "out.mp3") -> Path:
+            '''def speak(text: str, voice: str = "af_bella", out_name: str = "out.wav") -> Path:
     r = client.audio.speech.create(
         model="tts-kokoro",
         voice=voice,
         input=text,
-        response_format="mp3",
+        response_format="wav",  # wav is readable without ffmpeg
     )
     path = OUT / out_name
     r.write_to_file(str(path))
     return path
 
 p = speak("Hello Base Batches. This audio came out of Venice with no logs and no API key. Welcome.",
-          voice="af_bella", out_name="hello.mp3")
+          voice="af_bella", out_name="hello.wav")
 display(Audio(str(p)))'''),
         ("markdown",
             "## 2. Two-host podcast intro\n\n"
@@ -74,23 +74,23 @@ display(Audio(str(p)))'''),
             '''from pydub import AudioSegment
 
 SCRIPT = [
-    ("af_bella",   "Welcome to Private by Default, the show where we put privacy back into AI."),
-    ("am_michael", "Today on the show: end-to-end encrypted inference. What it actually means and why your hospital should care."),
-    ("af_bella",   "Plus: a live demo where we encrypt a prompt on the client and watch Venice generate a reply they cannot read."),
-    ("am_michael", "Stick around. This is going to be fun."),
+    ("af_bella", "Welcome to Private by Default, the show where we put privacy back into AI."),
+    ("am_echo",  "Today on the show: end-to-end encrypted inference. What it actually means and why your hospital should care."),
+    ("af_bella", "Plus: a live demo where we encrypt a prompt on the client and watch Venice generate a reply they cannot read."),
+    ("am_echo",  "Stick around. This is going to be fun."),
 ]
 
 clips = []
 for i, (voice, line) in enumerate(SCRIPT):
-    p = speak(line, voice=voice, out_name=f"podcast_{i}.mp3")
-    clips.append(AudioSegment.from_file(p))
+    p = speak(line, voice=voice, out_name=f"podcast_{i}.wav")
+    clips.append(AudioSegment.from_file(p, format="wav"))
 
-intro = AudioSegment.silent(duration=200)
+intro = AudioSegment.silent(duration=200, frame_rate=clips[0].frame_rate)
 for c in clips:
-    intro += c + AudioSegment.silent(duration=120)
+    intro += c + AudioSegment.silent(duration=120, frame_rate=c.frame_rate)
 
-podcast_path = OUT / "podcast_intro.mp3"
-intro.export(podcast_path, format="mp3")
+podcast_path = OUT / "podcast_intro.wav"
+intro.export(podcast_path, format="wav")
 display(Audio(str(podcast_path)))'''),
         ("markdown",
             "## 3. Silence trimming and segmentation\n\n"
@@ -123,7 +123,7 @@ print(f"Trimmed leading silence and split into {len(segments)} segment(s).")''')
             '''def transcribe(path: Path) -> str:
     with open(path, "rb") as f:
         r = client.audio.transcriptions.create(
-            model="whisper-large",
+            model="openai/whisper-large-v3",
             file=f,
             response_format="text",
         )

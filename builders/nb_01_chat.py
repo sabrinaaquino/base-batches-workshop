@@ -40,8 +40,8 @@ def cells() -> list[Cell]:
         ("code",
             '''import pandas as pd
 
-CANDIDATES = ["llama-3.3-70b", "venice-uncensored", "qwen3-235b"]
-JUDGE     = "llama-3.3-70b"
+CANDIDATES = ["llama-3.3-70b", "venice-uncensored", "qwen3-235b-a22b-instruct-2507"]
+JUDGE     = "qwen3-235b-a22b-instruct-2507"  # supports response_format=json_object
 
 PROMPT = (
     "You are pitching a privacy-preserving AI to a non-technical CEO of a hospital. "
@@ -135,7 +135,7 @@ schema_prompt = (
 )
 
 r = client.chat.completions.create(
-    model="llama-3.3-70b",
+    model="qwen3-235b-a22b-instruct-2507",  # supports response_format
     messages=[
         {"role": "system", "content": schema_prompt},
         {"role": "user", "content": raw},
@@ -221,7 +221,7 @@ TOOLS = [
 
     for _ in range(4):
         r = client.chat.completions.create(
-            model="llama-3.3-70b",
+            model="qwen3-235b-a22b-instruct-2507",
             messages=messages,
             tools=TOOLS,
             tool_choice="auto",
