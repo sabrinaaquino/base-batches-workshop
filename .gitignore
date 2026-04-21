@@ -29,3 +29,4 @@ _probe_*.py
 _test_*.py
 _inspect.py
 notebooks/sample.txt
+notebooks/sample.pdf
