@@ -19,7 +19,7 @@ def cells() -> list[Cell]:
             "Embeddings: visualize, classify, cluster, and retrieve",
             "Embeddings turn any text into a 1024-dimensional vector. With that vector you can do "
             "search, recommendations, classification, clustering, and retrieval-augmented generation. "
-            "We will do all five against a real Base Batches dataset (the BB003 cohort).",
+            "We will do all five against a fictional AI builder cohort.",
         )),
         ("markdown",
             "## What you will build\n\n"
@@ -28,7 +28,7 @@ def cells() -> list[Cell]:
             "3. **Classify** unseen teams into one of 4 tracks (DeFi / AI / Social / Infra) using a "
             "scikit-learn random forest on top of the embeddings.\n"
             "4. **Cluster** the cohort with k-means and let an LLM auto-name each cluster.\n"
-            "5. **Build a mini-RAG**: chunk the BB003 program FAQ, embed it, retrieve the top-3 "
+            "5. **Build a mini-RAG**: chunk a program brief, embed it, retrieve the top-3 "
             "snippets for any question, and generate an answer.\n\n"
             "Why this matters: this is the same recipe used by every serious search and assistant "
             "product. Embeddings are the cheapest way to add memory to an LLM."),
@@ -57,10 +57,10 @@ def cosine(a, b):
 
 print("Helper functions ready.")'''),
         ("markdown",
-            "## The dataset: BB003 cohort\n\n"
-            "Fourteen fictional but representative Base Batches teams, each with a one-paragraph "
-            "description and a ground-truth track label. Real BB003 data lives behind the org wall, "
-            "this is a public stand-in built from the program brief."),
+            "## The dataset: an AI builder cohort\n\n"
+            "Fourteen fictional but realistic onchain teams, each with a one-paragraph description "
+            "and a ground-truth track label (DeFi / AI / Social / Infra). Same shape as the data "
+            "you would get from any accelerator application form."),
         ("code",
             '''COHORT = [
     ("PrivPay",      "DeFi",   "A privacy-preserving payments app on Base. Uses E2EE chat between counterparties and stealth addresses to hide transaction graphs from chain analytics firms."),
@@ -108,7 +108,7 @@ for track, color in palette.items():
         plt.annotate(df.loc[i, "team"], (xy[i, 0] + 1, xy[i, 1] + 0.5), fontsize=8)
 
 plt.legend(loc="best")
-plt.title("BB003 cohort projected to 2D with t-SNE")
+plt.title("Cohort projected to 2D with t-SNE")
 plt.xlabel("t-SNE 1"); plt.ylabel("t-SNE 2")
 plt.tight_layout()
 plt.show()'''),
@@ -210,7 +210,7 @@ named[["team", "track", "cluster", "cluster_name"]].sort_values("cluster")'''),
         ("markdown",
             "## 5. A full mini-RAG pipeline\n\n"
             "Now the headline act. We will build a tiny retrieval-augmented question-answering system "
-            "over a public document (the Base Batches 003 program brief). The recipe:\n\n"
+            "over a fictional accelerator program brief. The recipe:\n\n"
             "1. **Chunk** the source into ~150-word passages.\n"
             "2. **Embed** every chunk.\n"
             "3. For a question, embed it and retrieve the top-k most similar chunks.\n"
@@ -220,32 +220,32 @@ named[["team", "track", "cluster", "cluster_name"]].sort_values("cluster")'''),
             "internal knowledge tool."),
         ("code",
             '''DOC = """
-Base Batches 003 (BB003) is a 12-week builder program run by Base for teams shipping
-onchain consumer apps. The cohort starts in Q3 and ends with a public Demo Day in
-Q4. Each accepted team receives a $25k grant in USDC on Base, weekly office hours
-with Base engineering, and credits with partner platforms including Venice AI,
-Privy, and Coinbase Developer Platform.
+The Builder Program is a 12-week accelerator for teams shipping onchain consumer apps.
+The cohort starts in Q3 and ends with a public Demo Day in Q4. Each accepted team
+receives a $25k grant in USDC, weekly office hours with the program's engineering
+partners, and credits with platforms including Venice AI, Privy, and Coinbase
+Developer Platform.
 
 Eligibility: teams must have at least one full-time technical founder, be incorporated
 or willing to incorporate during the program, and commit to shipping a working app
-on Base mainnet by Demo Day. Pre-product teams are welcome.
+on mainnet by Demo Day. Pre-product teams are welcome.
 
 Program structure: weeks 1-2 focus on user research and product spec. Weeks 3-6 are
 heads-down build. Weeks 7-9 are private beta with a target of 100 weekly active
 users. Weeks 10-12 are growth, polish, and Demo Day prep.
 
-Mentorship: every team is paired with two mentors, one from Base engineering and one
-from the partner network. Mentor sessions are weekly, 45 minutes, and recorded with
-consent. Office hours are open: any team can drop in to any session.
+Mentorship: every team is paired with two mentors, one from the program's engineering
+side and one from the partner network. Mentor sessions are weekly, 45 minutes, and
+recorded with consent. Office hours are open: any team can drop in to any session.
 
 Funding: the $25k grant is paid in two tranches, $15k at week 1 and $10k at week 6
-contingent on shipping milestones. Base may also lead a follow-on pre-seed round of
-$250k-$1M for top performing teams at Demo Day. There is no equity taken by Base in
+contingent on shipping milestones. The program may also lead a follow-on pre-seed
+round of $250k-$1M for top performing teams at Demo Day. No equity is taken in
 exchange for the grant or the program.
 
 Demo Day: held in San Francisco and live-streamed globally. Each team gets a 4-minute
 live demo and a 2-minute Q&A in front of an audience of investors, partners, and the
-broader Base community. Teams are judged on traction, product quality, and onchain
+broader builder community. Teams are judged on traction, product quality, and onchain
 volume in the 4 weeks leading up to Demo Day.
 
 Privacy and credentials: teams keep all IP. Code can be open or closed source.
@@ -291,8 +291,8 @@ def answer(question: str, k: int = 3) -> str:
     return r.choices[0].message.content
 
 QUESTIONS = [
-    "How much grant funding do BB003 teams get and when?",
-    "Does Base take equity in exchange for the program?",
+    "How much grant funding do teams get and when?",
+    "Does the program take equity in exchange for the grant?",
     "What happens during weeks 7 to 9?",
     "Can pre-product teams apply?",
     "Who is the head judge at Demo Day?",

@@ -42,7 +42,7 @@ def cells() -> list[Cell]:
     model="venice-uncensored",
     messages=[
         {"role": "system", "content": "You are a sharp, irreverent assistant. Reply in 2 sentences."},
-        {"role": "user", "content": "Pitch Venice to a Base Batches builder in one tweet."},
+        {"role": "user", "content": "Pitch Venice to a developer in one tweet."},
     ],
 )
 print(resp.choices[0].message.content)'''),
@@ -119,5 +119,5 @@ print("text:", r.json()["choices"][0]["message"]["content"])'''),
             "| Pay with a wallet (no API key) | `07-x402-wallet-payments.ipynb` |\n"
             "| Make Venice unable to read your prompt | `08-e2ee-encryption.ipynb` |\n"
             "| Web search, scrape, parse PDFs, talk to any blockchain | `09-tools-and-rpc.ipynb` |\n\n"
-            "Have fun. Break things. Ask in #base-batches if you get stuck."),
+            "Have fun. Break things. Ping the [Venice Discord](https://discord.gg/venice-ai) if you get stuck."),
     ]

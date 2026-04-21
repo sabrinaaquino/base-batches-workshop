@@ -12,7 +12,7 @@ from __future__ import annotations
 from typing import List, Tuple
 
 GH_USER = "sabrinaaquino"
-GH_REPO = "base-batches-workshop"
+GH_REPO = "venice-cookbook"
 BRANCH = "main"
 
 Cell = Tuple[str, str]
@@ -31,7 +31,7 @@ def header(notebook_filename: str, title: str, subtitle: str = "") -> str:
     return (
         f"# {title}\n\n"
         f"{colab_badge(notebook_filename)}\n\n"
-        f"_Sabrina Aquino, Venice AI / Base Batches 003_{sub}"
+        f"_Venice AI Cookbook_{sub}"
     )
 
 

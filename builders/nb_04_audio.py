@@ -25,7 +25,7 @@ def cells() -> list[Cell]:
             "3. **Silence trimming + segmentation** with pydub for files longer than 30 seconds.\n"
             "4. **Baseline transcription** with the raw STT endpoint.\n"
             "5. **Post-processed transcription** that runs the raw output through chat to fix "
-            "domain-specific spellings (Venice, x402, BB003, TEE, E2EE).\n\n"
+            "domain-specific spellings (Venice, x402, TEE, E2EE).\n\n"
             "Cost: TTS is ~$0.015 per minute, STT is ~$0.006 per minute on Venice."),
         ("markdown", "## Setup"),
         install_cell("pydub"),
@@ -63,7 +63,7 @@ VOICES'''),
     r.write_to_file(str(path))
     return path
 
-p = speak("Hello Base Batches. This audio came out of Venice with no logs and no API key. Welcome.",
+p = speak("Hello builders. This audio came out of Venice with no logs and no API key. Welcome.",
           voice="af_bella", out_name="hello.wav")
 display(Audio(str(p)))'''),
         ("markdown",
@@ -116,8 +116,8 @@ segments = trim_and_segment(intro, segment_seconds=15)
 print(f"Trimmed leading silence and split into {len(segments)} segment(s).")'''),
         ("markdown",
             "## 4. Baseline transcription\n\n"
-            "Run STT on the podcast we just generated. We expect domain words like \"Base Batches\" "
-            "and \"Venice\" to occasionally come out as \"face badges\" or \"Vinnies\". That is what "
+            "Run STT on the podcast we just generated. We expect domain words like \"Venice\" "
+            "and \"Kokoro\" to occasionally come out as \"Vinnies\" or \"Cocoa Roe\". That is what "
             "the next step fixes."),
         ("code",
             '''def transcribe(path: Path) -> str:
@@ -140,11 +140,10 @@ print(baseline)'''),
             '''GLOSSARY = """
 Domain terms that must appear exactly as written:
 - Venice (the AI platform; never "Vinnies", "Venezia")
-- Base Batches (the program; never "face badges")
-- BB003 (the cohort; never "B.B. zero zero three")
 - TEE (Trusted Execution Environment, always uppercase)
 - E2EE (End-to-End Encryption, always uppercase)
 - x402 (the protocol; lowercase x, no space)
+- DIEM (the Venice credit token, always uppercase)
 - Whisper, Llama, Kokoro (model names, capitalize)
 """
 

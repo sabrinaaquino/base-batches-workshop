@@ -63,7 +63,7 @@ print("Helpers ready.")'''),
             "anonymized). Returns title, url, snippet, and date for each hit."),
         ("code",
             '''r = post("/augment/search", json_body={
-    "query": "base batches 003 demo day schedule",
+    "query": "venice ai api documentation",
     "limit": 8,
     "search_provider": "brave",
 })
@@ -114,7 +114,7 @@ if not sample.exists():
     try:
         from reportlab.pdfgen import canvas
         c = canvas.Canvas(str(sample))
-        c.drawString(72, 750, "Base Batches 003 Workshop")
+        c.drawString(72, 750, "Venice Cookbook Sample")
         c.drawString(72, 730, "This is a sample PDF generated inside the notebook.")
         c.drawString(72, 710, "Venice's Text Parser will extract these lines back as plain text.")
         c.save()

@@ -1,7 +1,7 @@
 """01 - Chat completions. Three sub-examples in the OpenAI cookbook style:
     1. Side by side model comparison with a pandas DataFrame
     2. Pydantic structured outputs
-    3. Tool calling for a Base Batches schedule assistant
+    3. Tool calling for a hackathon schedule assistant
 """
 
 from ._common import Cell, header, install_cell, setup_cell

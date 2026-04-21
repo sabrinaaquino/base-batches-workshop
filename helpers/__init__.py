@@ -1,4 +1,4 @@
-"""Shared helpers for the Base Batches × Venice workshop notebooks."""
+"""Shared helpers for the Venice cookbook notebooks."""
 
 from .venice import get_client, get_api_key, BASE_URL
 
