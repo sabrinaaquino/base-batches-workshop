@@ -31,8 +31,8 @@ Every notebook runs in **Google Colab** with one click. No local setup needed.
 
 1. Click any **Open in Colab** badge above.
 2. In Colab, open the **Secrets** panel (key icon, left sidebar) and add:
-   - `VENICE_API_KEY`: get one at [venice.ai/settings/api](https://venice.ai/settings/api)
-   - `WALLET_PRIVATE_KEY` (only needed for notebook 07): a Base wallet private key
+   - `VENICE_API_KEY`: get one at [venice.ai/settings/api](https://venice.ai/settings/api). Used by every notebook **except 07**.
+   - `WALLET_PRIVATE_KEY` (optional, used by notebook 07): any Base wallet private key. Notebook 07 generates a throwaway wallet automatically if this is not set.
 3. Run each cell.
 
 ### Option B: Run locally
